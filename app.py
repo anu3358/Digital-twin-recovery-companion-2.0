@@ -23,7 +23,9 @@ def seed_demo():
     try:
         if not db.query(User).filter(User.email == "admin@example.com").first():
             from passlib.context import CryptContext
-            pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Use pbkdf2_sha256 (pure-Python) to avoid bcrypt native libs on Streamlit Cloud
+            pwd = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+
             for email, role, name in [
                 ("admin@example.com", "admin", "Admin User"),
                 ("clinician@example.com", "clinician", "Clinician One"),
