@@ -1,17 +1,13 @@
+# util/auth.py
 from passlib.context import CryptContext
-from sqlalchemy.orm import Session
 from models import User
+from sqlalchemy.orm import Session
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Use a pure-Python backend so Streamlit Cloud doesn't need bcrypt C libs
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    try:
-        return pwd_context.verify(plain_password, hashed_password)
-    except Exception:
-        return False
-
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+def verify_password(plain: str, hashed: str) -> bool:
+    return pwd_context.verify(plain, hashed)
 
 def authenticate(db: Session, email: str, password: str):
     user = db.query(User).filter(User.email == email).first()
